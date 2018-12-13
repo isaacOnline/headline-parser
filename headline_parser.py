@@ -71,7 +71,7 @@ def is_break_token(token):
 # For the classifier, drop everything except letters, numbers, and $.
 CLF_REMOVED_CHAR_PATTERN = '[^a-z0-9\$]'
 
-def text_clf(token):
+def clf_text(token):
     """Drop everything but letters, numbers, and currency ($.,)
     """
     # Drop everything but letters, numbers, $.
@@ -84,7 +84,7 @@ def text_clf(token):
 
 
 def is_clf_token(token):
-    return len(token._.text_clf)
+    return len(token._.clf_text)
 
 
 def longest_unbroken_span(doc):
@@ -111,12 +111,12 @@ def clf_tokens(doc):
 
 
 def clf_token_texts(doc):
-    return [t._.text_clf for t in doc._.clf_tokens]
+    return [t._.clf_text for t in doc._.clf_tokens]
 
 
 
 Token.set_extension('is_break_token', getter=is_break_token)
-Token.set_extension('text_clf', getter=text_clf)
+Token.set_extension('clf_text', getter=clf_text)
 Token.set_extension('is_clf_token', getter=is_clf_token)
 
 Doc.set_extension('longest_unbroken_span', getter=longest_unbroken_span)
