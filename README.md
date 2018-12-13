@@ -16,3 +16,17 @@ We don't care about things like the `AP News:` prefix, just the actual headline.
 1. Clean the tokens - downcase, strip punctuation. Keep `$`, but replace `[0-9]+` digits with a single `#` character, since different outlets have different conventions for how numbers are reported / formatted.
 
 Generally, if we imagine a classifier that tries to predict `(headline -> outlet)`, the idea is to get rid of anything that would give the model an "unfair advantage," and force it to just consider the raw linguistic content of the headline.
+
+## Usage
+
+```python
+from headline_parser import parse_headline
+
+hl = parse_headline('The Daily Prophet: Trade Jitters and Frexit Fears')
+
+type(hl)
+>> spacy.tokens.doc.Doc
+
+hl._.clf_token_texts
+>> ['trade', 'jitters', 'and', 'frexit', 'fears']
+```
