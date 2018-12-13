@@ -2,7 +2,6 @@
 
 import re
 import spacy
-import regex
 
 from spacy.tokens import Token, Doc
 from boltons.iterutils import pairwise
