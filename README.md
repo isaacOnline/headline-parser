@@ -30,3 +30,7 @@ type(hl)
 hl._.clf_token_texts
 >> ['trade', 'jitters', 'and', 'frexit', 'fears']
 ```
+
+## TODO
+
+- Do this in a less heuristic way? Some kind of adversarial model, maybe at the character level, that cuts out pieces of headlines that are very high leverage under a classifier? Unsure.
