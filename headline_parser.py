@@ -37,6 +37,10 @@ def standardize_hyphens(text):
     return text
 
 
+def standardize_and(text):
+    return text.replace(' & ', ' and ')
+
+
 def drop_twitter_chars(text):
     return re.sub('[@#]', '', text)
 
@@ -44,6 +48,7 @@ def drop_twitter_chars(text):
 STANDARDIZERS = (
     standardize_quotes,
     standardize_hyphens,
+    standardize_and,
     drop_twitter_chars,
 )
 
@@ -112,7 +117,6 @@ def clf_tokens(doc):
 
 def clf_token_texts(doc):
     return [t._.clf_text for t in doc._.clf_tokens]
-
 
 
 Token.set_extension('is_break_token', getter=is_break_token)

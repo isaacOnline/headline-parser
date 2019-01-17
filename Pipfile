@@ -10,6 +10,8 @@ regex = "*"
 boltons = "*"
 pytest = "*"
 spacy = "*"
+torch = "*"
+ujson = "*"
 
 [dev-packages]
 
