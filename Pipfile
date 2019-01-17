@@ -12,6 +12,7 @@ pytest = "*"
 spacy = "*"
 torch = "*"
 ujson = "*"
+tqdm = "*"
 
 [dev-packages]
 
