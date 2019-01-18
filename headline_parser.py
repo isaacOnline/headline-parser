@@ -107,12 +107,7 @@ def spans(doc):
 def longest_unbroken_span(doc):
     """Find the longest span of tokens without a break token.
     """
-    # Get longest span.
-    pairs = sorted(pairwise(doc._.break_idxs), key=lambda p: p[1]-p[0])
-    i1, i2 = pairs[-1]
-
-    # Slice tokens inside of (but not including) the breaks.
-    return doc[i1+1:i2]
+    return sorted(doc._.spans, key=lambda s: len(s), reverse=True)[0]
 
 
 def clf_tokens(doc):
