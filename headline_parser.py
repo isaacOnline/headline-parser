@@ -3,9 +3,9 @@
 import re
 import spacy
 
-from spacy.tokens import Token, Doc
-from boltons.iterutils import pairwise
+from spacy.tokens import Token, Span, Doc
 from functools import reduce
+from boltons.iterutils import pairwise
 
 
 # TODO: What to do with "/"?
@@ -76,7 +76,7 @@ def is_break_token(token):
 # For the classifier, drop everything except letters, numbers, and $.
 CLF_REMOVED_CHAR_PATTERN = '[^a-z0-9\$]'
 
-def clf_text(token):
+def token_clf_text(token):
     """Drop everything but letters, numbers, and currency ($.,)
     """
     # Drop everything but letters, numbers, $.
@@ -88,8 +88,8 @@ def clf_text(token):
     return text
 
 
-def is_clf_token(token):
-    return len(token._.clf_text)
+def span_clf_text(span):
+    return ' '.join(t._.clf_text for t in span)
 
 
 def break_idxs(doc):
@@ -120,7 +120,7 @@ def clf_tokens(doc):
     """
     return [
         t for t in doc._.longest_unbroken_span
-        if t._.is_clf_token
+        if len(t._.clf_text)
     ]
 
 
@@ -129,8 +129,9 @@ def clf_token_texts(doc):
 
 
 Token.set_extension('is_break_token', getter=is_break_token)
-Token.set_extension('clf_text', getter=clf_text)
-Token.set_extension('is_clf_token', getter=is_clf_token)
+Token.set_extension('clf_text', getter=token_clf_text)
+
+Span.set_extension('clf_text', getter=span_clf_text)
 
 Doc.set_extension('break_idxs', getter=break_idxs)
 Doc.set_extension('spans', getter=spans)
