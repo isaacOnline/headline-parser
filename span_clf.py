@@ -11,11 +11,13 @@ import logging
 import click
 
 import numpy as np
+import pandas as pd
 
 from glob import glob
 from tqdm import tqdm
 from collections import Counter, defaultdict
 from itertools import chain, islice
+from boltons.iterutils import chunked_iter
 
 from torch import nn, optim
 from torch.nn import functional as F
@@ -109,6 +111,11 @@ class Corpus:
         self.groups = groups
         self.test_frac = test_frac
         self.set_splits()
+
+    def pairs_iter(self):
+        for label, lines in self.groups.items():
+            for line in lines:
+                yield label, line
 
     def labels(self):
         return list(self.groups)
@@ -280,19 +287,21 @@ def train_epoch(model, optimizer, loss_func, split):
     )
 
     losses = []
-    for spans, yt in tqdm(loader):
+    with tqdm(total=len(split)) as bar:
+        for spans, yt in loader:
 
-        model.train()
-        optimizer.zero_grad()
+            model.train()
+            optimizer.zero_grad()
 
-        yp = model(spans)
+            yp = model(spans)
 
-        loss = loss_func(yp, yt)
-        loss.backward()
+            loss = loss_func(yp, yt)
+            loss.backward()
 
-        optimizer.step()
+            optimizer.step()
 
-        losses.append(loss.item())
+            losses.append(loss.item())
+            bar.update(len(spans))
 
     return losses
 
@@ -323,7 +332,6 @@ def evaluate(model, loss_func, split):
     return loss_func(yp, yt)
 
 
-
 @click.group()
 def cli():
     pass
@@ -352,6 +360,7 @@ def train(src, dst, max_epochs, es_wait):
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     loss_func = nn.NLLLoss()
 
+    # Train.
     losses = []
     for _ in range(max_epochs):
 
@@ -365,7 +374,20 @@ def train(src, dst, max_epochs, es_wait):
         if len(losses) > es_wait and losses[-1] > losses[-es_wait]:
             break
 
-    torch.save(model, dst)
+    # Dump preds.
+    rows = []
+    for pairs in tqdm(chunked_iter(corpus.pairs_iter(), 100)):
+
+        domains, spans = zip(*pairs)
+
+        yps = model(spans).exp()
+
+        for domain, span, yp in zip(domains, spans, yps):
+            preds = list(zip(model.labels, yp.tolist()))
+            rows.append((domain, span, preds))
+
+    df = pd.DataFrame(rows, columns=('domain', 'span', 'preds'))
+    df.to_json(dst, orient='records', lines=True)
 
 
 if __name__ == '__main__':

@@ -15,6 +15,7 @@ ujson = "*"
 tqdm = "*"
 seaborn = "*"
 click = "*"
+pandas = "*"
 
 [dev-packages]
 
