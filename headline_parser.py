@@ -89,7 +89,7 @@ def token_clf_text(token):
 
 
 def span_clf_text(span):
-    return ' '.join(t._.clf_text for t in span)
+    return ' '.join(t._.clf_text for t in span if t._.clf_text)
 
 
 def break_idxs(doc):
