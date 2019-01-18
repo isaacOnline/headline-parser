@@ -87,7 +87,7 @@ class Corpus:
         for row in tqdm(rows_iter):
 
             doc = parse_headline(row['title'])
-            spans = [s._.clf_text for s in doc._.spans if s.text]
+            spans = [s._.clf_text for s in doc._.spans if s._.clf_text]
 
             # Only care about cases where we can remove a split.
             if len(spans) > 1:
