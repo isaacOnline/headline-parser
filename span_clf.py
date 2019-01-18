@@ -7,6 +7,7 @@ import string
 import random
 import sys
 import pickle
+import logging
 import click
 
 import numpy as np
@@ -23,6 +24,18 @@ from torch.utils.data import random_split
 from torch.utils.data import DataLoader
 
 from headline_parser import parse_headline
+
+
+logging.basicConfig(
+    format='%(asctime)s | %(levelname)s : %(message)s',
+    level=logging.INFO,
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('span-clf.log'),
+    ]
+)
+
+logger = logging.getLogger('span-clf')
 
 
 def read_json_gz_lines(root):
@@ -74,12 +87,12 @@ class Corpus:
         for row in tqdm(rows_iter):
 
             doc = parse_headline(row['title'])
-            spans = [s.text for s in doc._.spans if s.text]
+            spans = [s._.clf_text for s in doc._.spans if s.text]
 
             # Only care about cases where we can remove a split.
             if len(spans) > 1:
                 for span in spans:
-                        groups[row['domain']].append(span)
+                    groups[row['domain']].append(span)
 
         return cls(groups)
 
@@ -164,7 +177,7 @@ class CharEmbedding(nn.Embedding):
 
 class SpanEncoder(nn.Module):
 
-    def __init__(self, input_size, hidden_size=100, num_layers=1):
+    def __init__(self, input_size, hidden_size=512, num_layers=1):
         """Initialize LSTM.
         """
         super().__init__()
@@ -212,7 +225,7 @@ class SpanEncoder(nn.Module):
 
 class Classifier(nn.Module):
 
-    def __init__(self, labels, hidden_dim=100):
+    def __init__(self, labels, hidden_dim=256):
         """Initialize encoders + clf.
         """
         super().__init__()
@@ -347,7 +360,7 @@ def train(src, dst, max_epochs, es_wait):
         loss = evaluate(model, loss_func, corpus.val)
         losses.append(loss)
 
-        print(loss)
+        logger.info(loss.item())
 
         if len(losses) > es_wait and losses[-1] > losses[-es_wait]:
             break
