@@ -348,7 +348,7 @@ def train(src, dst, max_epochs, es_wait):
     """
     corpus = Corpus.load(src)
 
-    model = Classifier(corpus.labels())
+    model = Classifier(corpus.labels()).to(DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     loss_func = nn.NLLLoss()
 
