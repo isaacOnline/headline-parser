@@ -258,7 +258,7 @@ class Classifier(nn.Module):
         return lines, yt
 
 
-def train_epoch(model, optimizer, split):
+def train_epoch(model, optimizer, loss_func, split):
 
     loader = DataLoader(
         split,
@@ -305,7 +305,7 @@ def predict(model, split):
     return yt, yp
 
 
-def evaluate(model, split):
+def evaluate(model, loss_func, split):
     yt, yp = predict(model, split)
     return loss_func(yp, yt)
 
@@ -323,6 +323,36 @@ def cli():
 def build_corpus(src, dst, skim):
     corpus = Corpus.from_spark_lines(src, skim)
     corpus.save(dst)
+
+
+@cli.command()
+@click.argument('src', type=click.Path())
+@click.argument('dst', type=click.Path())
+@click.option('--max_epochs', type=int, default=100)
+@click.option('--es_wait', type=int, default=5)
+def train(src, dst, max_epochs, es_wait):
+    """Train, dump model.
+    """
+    corpus = Corpus.load(src)
+
+    model = Classifier(corpus.labels())
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    loss_func = nn.NLLLoss()
+
+    losses = []
+    for _ in range(max_epochs):
+
+        train_epoch(model, optimizer, loss_func, corpus.train)
+
+        loss = evaluate(model, loss_func, corpus.val)
+        losses.append(loss)
+
+        print(loss)
+
+        if len(losses) > es_wait and losses[-1] > losses[-es_wait]:
+            break
+
+    torch.save(model, dst)
 
 
 if __name__ == '__main__':
