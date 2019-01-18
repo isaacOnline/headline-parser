@@ -13,6 +13,7 @@ spacy = "*"
 torch = "*"
 ujson = "*"
 tqdm = "*"
+seaborn = "*"
 
 [dev-packages]
 
