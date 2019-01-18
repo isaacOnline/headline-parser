@@ -57,7 +57,7 @@ def standardize_text(text):
 
 
 # Headlines can contain letters, numbers, ".,;", "?!", $, and spaces.
-BREAK_CHAR_PATTERN = '[^a-z0-9\.,;\'"\?!\$\s]'
+BREAK_CHAR_PATTERN = '[^a-z0-9\.,;\'"\?!\$%\s]'
 
 # Regular tokens that constitute a break.
 ALPHA_BREAK_TOKENS = {'via'}
@@ -74,7 +74,7 @@ def is_break_token(token):
 
 
 # For the classifier, drop everything except letters, numbers, and $.
-CLF_REMOVED_CHAR_PATTERN = '[^a-z0-9\$]'
+CLF_REMOVED_CHAR_PATTERN = '[^a-z0-9\$%]'
 
 def token_clf_text(token):
     """Drop everything but letters, numbers, and currency ($.,)
