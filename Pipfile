@@ -16,6 +16,7 @@ tqdm = "*"
 seaborn = "*"
 click = "*"
 pandas = "*"
+sklearn = "*"
 
 [dev-packages]
 
