@@ -2,10 +2,26 @@
 
 import re
 import spacy
+import os
 
 from spacy.tokens import Token, Span, Doc
 from functools import reduce
 from boltons.iterutils import pairwise
+
+
+def load_blocklist(path):
+    """Read block list, or empty set.
+    """
+    try:
+        with open(path) as fh:
+            return set(fh.read().splitlines())
+
+    except:
+        return set()
+
+
+BLOCKLIST_PATH = os.path.join(os.path.dirname(__file__), 'blocklist.txt')
+BLOCKLIST = load_blocklist(BLOCKLIST_PATH)
 
 
 # TODO: What to do with "/"?
@@ -89,7 +105,7 @@ def token_clf_text(token):
 
 
 def span_clf_text(span):
-    return ' '.join(t._.clf_text for t in span if t._.clf_text)
+    return ' '.join(t._.clf_text for t in span if t._.clf_text).strip()
 
 
 def break_idxs(doc):
@@ -102,6 +118,13 @@ def spans(doc):
     """Pull apart separator-delimited spans.
     """
     return [doc[i1+1:i2] for i1, i2 in pairwise(doc._.break_idxs)]
+
+
+def span_clf_texts(doc):
+    """Join spans -> clf strings, drop empty strings.
+    """
+    texts = [span._.clf_text for span in doc._.spans]
+    return tuple(filter(bool, texts))
 
 
 def longest_unbroken_span(doc):
@@ -130,6 +153,7 @@ Span.set_extension('clf_text', getter=span_clf_text)
 
 Doc.set_extension('break_idxs', getter=break_idxs)
 Doc.set_extension('spans', getter=spans)
+Doc.set_extension('span_clf_texts', getter=span_clf_texts)
 Doc.set_extension('longest_unbroken_span', getter=longest_unbroken_span)
 Doc.set_extension('clf_tokens', getter=clf_tokens)
 Doc.set_extension('clf_token_texts', getter=clf_token_texts)
