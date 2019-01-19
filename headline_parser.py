@@ -137,8 +137,11 @@ def clf_tokens(doc):
     """Get filtered tokens for classifier.
     """
     return [
-        t for t in doc._.longest_unbroken_span
-        if len(t._.clf_text)
+        token
+        for span in doc._.spans
+        if span._.clf_text and span._.clf_text not in BLOCKLIST
+        for token in span
+        if token._.clf_text
     ]
 
 
