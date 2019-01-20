@@ -72,8 +72,8 @@ def standardize_text(text):
     return reduce(lambda t, func: func(t), STANDARDIZERS, text)
 
 
-# Headlines can contain letters, numbers, ".,;", "?!", $, and spaces.
-BREAK_CHAR_PATTERN = '[^a-z0-9\.,;\'"\?!\$%\s]'
+# Headlines can contain letters, digits, ".,;", "?!", "$%,"" and spaces.
+BREAK_CHAR_PATTERN = '[^a-z0-9\s\.,;\?!\'"\$%]'
 
 # Regular tokens that constitute a break.
 ALPHA_BREAK_TOKENS = {'via'}
