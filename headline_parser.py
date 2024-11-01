@@ -161,7 +161,7 @@ Doc.set_extension('longest_unbroken_span', getter=longest_unbroken_span)
 Doc.set_extension('clf_tokens', getter=clf_tokens)
 Doc.set_extension('clf_token_texts', getter=clf_token_texts)
 
-nlp = spacy.load('en', disable=['ner', 'parser', 'tagger'])
+nlp = spacy.load('en_core_web_sm', disable=['ner', 'parser', 'tagger'])
 
 
 def parse_headline(text):
